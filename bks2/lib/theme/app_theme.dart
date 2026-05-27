@@ -6,6 +6,7 @@ class BksColors {
   static const bg2 = Color(0xFF171727);
   static const bg3 = Color(0xFF1C1C30);
   static const border = Color(0xFF232338);
+  static const borderBright = Color(0xFF363660);
   static const gold = Color(0xFFE8A020);
   static const goldDim = Color(0xFF6A4A10);
   static const goldGlow = Color(0x33E8A020);
