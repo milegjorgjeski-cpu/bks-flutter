@@ -258,12 +258,7 @@ class _TBtn extends StatelessWidget {
     child: Container(width: 46, height: 46,
       decoration: BoxDecoration(color: onTap != null ? BksColors.bg3 : BksColors.bg1,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: onTap != null ? BksColors.borderBright : BksColors.border,
+          border: Border.all(color: onTap != null ? const Color(0xFF363660) : BksColors.border,
               width: 1.5)),
       child: Icon(icon, color: onTap != null ? BksColors.textPrimary : BksColors.textMuted)),
   );
-}
-
-extension on BksColors {
-  static const borderBright = Color(0xFF363660);
-}
