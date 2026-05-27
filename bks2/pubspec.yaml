@@ -1,0 +1,29 @@
+name: balkan_karaoke_studio
+description: Professional AI-powered workstation for Balkan live performers.
+publish_to: 'none'
+version: 2.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  http_parser: ^4.0.2
+  file_picker: ^8.0.3
+  just_audio: ^0.9.39
+  share_plus: ^9.0.0
+  path_provider: ^2.1.3
+  google_fonts: ^6.2.1
+  provider: ^6.1.2
+  flutter_animate: ^4.5.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
