@@ -23,18 +23,28 @@ class _LiveScreenState extends State<LiveScreen> {
   bool _stageMode = false;
   List<LyricLine> _lyrics = [];
 
-  int get _activeIdx => _lyrics.indexWhere((l) => _time >= l.lineStart && _time < l.lineEnd);
+  int get _activeIdx =>
+      _lyrics.indexWhere((l) => _time >= l.lineStart && _time < l.lineEnd);
 
   @override
-  void initState() { super.initState(); _loadLyrics(); }
+  void initState() {
+    super.initState();
+    _loadLyrics();
+  }
+
   @override
-  void dispose() { _timer?.cancel(); super.dispose(); }
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _loadLyrics() async {
     if (widget.transcriptionJobId == null) return;
     try {
       final job = await ApiService.getJob(widget.transcriptionJobId!);
-      if (job.isDone && mounted) setState(() => _lyrics = ApiService.parseLyrics(job));
+      if (job.isDone && mounted) {
+        setState(() => _lyrics = ApiService.parseLyrics(job));
+      }
     } catch (_) {}
   }
 
@@ -44,16 +54,23 @@ class _LiveScreenState extends State<LiveScreen> {
       _timer = Timer.periodic(const Duration(milliseconds: 100), (_) {
         setState(() {
           _time += 0.1;
-          if (_time >= _total) { _time = 0; _playing = false; _timer?.cancel(); }
+          if (_time >= _total) {
+            _time = 0;
+            _playing = false;
+            _timer?.cancel();
+          }
         });
       });
-    } else { _timer?.cancel(); }
+    } else {
+      _timer?.cancel();
+    }
   }
 
-  String _fmt(double s) => '${s~/60}:${String.fromCharCodes(s.toInt() % 60 < 10 ? [48, 48 + s.toInt() % 60] : [48 + (s.toInt() % 60) ~/ 10, 48 + (s.toInt() % 60) % 10])}';
+  String _fmtTime(double s) =>
+      '${s ~/ 60}:${(s % 60).toInt().toString().padLeft(2, '0')}';
 
   List<Widget> _buildTransposeButtons() {
-    return [-4,-3,-2,-1,0,1,2,3,4].map<Widget>((s) {
+    return [-4, -3, -2, -1, 0, 1, 2, 3, 4].map<Widget>((s) {
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -65,14 +82,16 @@ class _LiveScreenState extends State<LiveScreen> {
                 color: _transpose == s ? BksColors.gold : BksColors.bg3,
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                    color: _transpose == s ? BksColors.gold : BksColors.border),
+                  color: _transpose == s ? BksColors.gold : BksColors.border,
+                ),
               ),
               alignment: Alignment.center,
               child: Text(
                 s > 0 ? '+$s' : '$s',
                 style: TextStyle(
                   fontSize: 11, fontWeight: FontWeight.w700,
-                  color: _transpose == s ? BksColors.textInverse : BksColors.textSecondary,
+                  color: _transpose == s
+                      ? BksColors.textInverse : BksColors.textSecondary,
                 ),
               ),
             ),
@@ -87,34 +106,46 @@ class _LiveScreenState extends State<LiveScreen> {
     if (_stageMode) return _buildStage();
     return Scaffold(
       backgroundColor: BksColors.bg0,
-      appBar: AppBar(title: const Text('LIVE'), actions: [
-        if (widget.stemJobId != null) IconButton(
-          icon: const Icon(Icons.theater_comedy, color: BksColors.gold),
-          onPressed: () {
-            SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-            setState(() => _stageMode = true);
-          }),
-      ]),
+      appBar: AppBar(
+        title: const Text('LIVE'),
+        actions: [
+          if (widget.stemJobId != null)
+            IconButton(
+              icon: const Icon(Icons.theater_comedy, color: BksColors.gold),
+              onPressed: () {
+                SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+                setState(() => _stageMode = true);
+              },
+            ),
+        ],
+      ),
       body: widget.stemJobId == null
           ? const Center(child: Text('Прво увези песна',
               style: TextStyle(color: BksColors.textMuted, fontSize: 16)))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(children: [
+                // Transport
                 _card(Column(children: [
                   Row(children: [
-                    Text(_fmt(_time), style: const TextStyle(fontSize: 11, color: BksColors.textMuted)),
+                    Text(_fmtTime(_time),
+                        style: const TextStyle(fontSize: 11, color: BksColors.textMuted)),
                     Expanded(child: Slider(
-                      value: _time.clamp(0, _total), max: _total,
+                      value: _time.clamp(0, _total),
+                      max: _total,
                       onChanged: (v) => setState(() => _time = v),
-                      activeColor: BksColors.gold, inactiveColor: BksColors.bg3,
+                      activeColor: BksColors.gold,
+                      inactiveColor: BksColors.bg3,
                     )),
-                    Text(_fmt(_total), style: const TextStyle(fontSize: 11, color: BksColors.textMuted)),
+                    Text(_fmtTime(_total),
+                        style: const TextStyle(fontSize: 11, color: BksColors.textMuted)),
                   ]),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    IconButton(onPressed: () => setState(() => _time = 0),
-                        icon: const Icon(Icons.skip_previous_rounded,
-                            color: BksColors.textSecondary, size: 30)),
+                    IconButton(
+                      onPressed: () => setState(() => _time = 0),
+                      icon: const Icon(Icons.skip_previous_rounded,
+                          color: BksColors.textSecondary, size: 30),
+                    ),
                     GestureDetector(
                       onTap: _togglePlay,
                       child: Container(
@@ -131,28 +162,42 @@ class _LiveScreenState extends State<LiveScreen> {
                         ),
                       ),
                     ),
-                    IconButton(onPressed: () => setState(() => _time = _total),
-                        icon: const Icon(Icons.skip_next_rounded,
-                            color: BksColors.textSecondary, size: 30)),
+                    IconButton(
+                      onPressed: () => setState(() => _time = _total),
+                      icon: const Icon(Icons.skip_next_rounded,
+                          color: BksColors.textSecondary, size: 30),
+                    ),
                   ]),
                 ])),
                 const SizedBox(height: 12),
+
+                // Transpose
                 _card(Column(children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    const Text('TRANSPOSE', style: TextStyle(fontSize: 10,
-                        fontWeight: FontWeight.w700, color: BksColors.textMuted, letterSpacing: 2)),
-                    Text(
-                      _transpose == 0 ? '0 ST' : '${_transpose > 0 ? '+' : ''}${_transpose.toInt()} ST',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700,
-                          color: _transpose == 0 ? BksColors.textMuted : BksColors.gold),
-                    ),
-                  ]),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('TRANSPOSE', style: TextStyle(
+                          fontSize: 10, fontWeight: FontWeight.w700,
+                          color: BksColors.textMuted, letterSpacing: 2)),
+                      Text(
+                        _transpose == 0 ? '0 ST'
+                            : '${_transpose > 0 ? '+' : ''}${_transpose.toInt()} ST',
+                        style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w700,
+                          color: _transpose == 0 ? BksColors.textMuted : BksColors.gold,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   Row(children: _buildTransposeButtons()),
                 ])),
                 const SizedBox(height: 12),
+
+                // Tempo
                 _card(Row(children: [
-                  const Text('TEMPO', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
+                  const Text('TEMPO', style: TextStyle(
+                      fontSize: 10, fontWeight: FontWeight.w700,
                       color: BksColors.textMuted, letterSpacing: 2)),
                   const SizedBox(width: 12),
                   Expanded(child: SliderTheme(
@@ -163,7 +208,8 @@ class _LiveScreenState extends State<LiveScreen> {
                       trackHeight: 3,
                     ),
                     child: Slider(
-                      value: _tempo, min: 70, max: 130,
+                      value: _tempo,
+                      min: 70, max: 130,
                       onChanged: (v) => setState(() => _tempo = v),
                     ),
                   )),
@@ -171,6 +217,8 @@ class _LiveScreenState extends State<LiveScreen> {
                       fontSize: 15, fontWeight: FontWeight.w700, color: BksColors.bass)),
                 ])),
                 const SizedBox(height: 12),
+
+                // Lyrics preview
                 if (_lyrics.isNotEmpty) Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
@@ -187,28 +235,35 @@ class _LiveScreenState extends State<LiveScreen> {
                     ),
                     if (_activeIdx >= 0 && _activeIdx + 1 < _lyrics.length) ...[
                       const SizedBox(height: 8),
-                      Text(_lyrics[_activeIdx + 1].text,
-                          style: const TextStyle(fontSize: 14, color: BksColors.textMuted),
-                          textAlign: TextAlign.center),
+                      Text(
+                        _lyrics[_activeIdx + 1].text,
+                        style: const TextStyle(fontSize: 14, color: BksColors.textMuted),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ]),
                 ),
                 const SizedBox(height: 14),
-                SizedBox(width: double.infinity, child: ElevatedButton.icon(
-                  onPressed: () {
-                    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-                    setState(() => _stageMode = true);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2A1A00),
-                    foregroundColor: BksColors.gold,
-                    side: const BorderSide(color: BksColors.goldDim),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+                      setState(() => _stageMode = true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2A1A00),
+                      foregroundColor: BksColors.gold,
+                      side: const BorderSide(color: BksColors.goldDim),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.theater_comedy),
+                    label: const Text('🎭 ВЛЕЗИ ВО STAGE MODE'),
                   ),
-                  icon: const Icon(Icons.theater_comedy),
-                  label: const Text('🎭 ВЛЕЗИ ВО STAGE MODE'),
-                )),
+                ),
                 const SizedBox(height: 30),
               ]),
             ),
@@ -255,20 +310,20 @@ class _LiveScreenState extends State<LiveScreen> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              if (active != null) Text(active.text,
-                  style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900,
-                      color: Colors.white),
-                  textAlign: TextAlign.center),
+              if (active != null)
+                Text(active.text,
+                    style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900,
+                        color: Colors.white),
+                    textAlign: TextAlign.center),
               if (next != null) ...[
                 const SizedBox(height: 16),
                 Text(next.text,
                     style: const TextStyle(fontSize: 20, color: Color(0xFF3A3020)),
                     textAlign: TextAlign.center),
               ],
-              if (active == null) Icon(
-                _playing ? Icons.pause_circle : Icons.play_circle,
-                color: Colors.white12, size: 80,
-              ),
+              if (active == null)
+                Icon(_playing ? Icons.pause_circle : Icons.play_circle,
+                    color: Colors.white12, size: 80),
             ]),
           ),
         )),
@@ -287,8 +342,8 @@ class _LiveScreenState extends State<LiveScreen> {
               _stageBtn('−ST', BksColors.vocals,
                   () => setState(() => _transpose = (_transpose - 1).clamp(-12, 12))),
               const SizedBox(width: 8),
-              _stageBtnLarge(
-                  _playing ? '⏸' : '▶', BksColors.gold, _togglePlay),
+              Expanded(flex: 2, child: _stageBtnLarge(
+                _playing ? '⏸' : '▶', BksColors.gold, _togglePlay)),
               const SizedBox(width: 8),
               _stageBtn('+ST', BksColors.instr,
                   () => setState(() => _transpose = (_transpose + 1).clamp(-12, 12))),
@@ -339,21 +394,18 @@ class _LiveScreenState extends State<LiveScreen> {
   );
 
   Widget _stageBtnLarge(String label, Color color, VoidCallback onTap) =>
-      Expanded(
-        flex: 2,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            height: 70,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: color.withOpacity(0.6)),
-            ),
-            alignment: Alignment.center,
-            child: Text(label, style: TextStyle(
-                color: color, fontSize: 28, fontWeight: FontWeight.w700)),
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: color.withOpacity(0.6)),
           ),
+          alignment: Alignment.center,
+          child: Text(label, style: TextStyle(
+              color: color, fontSize: 28, fontWeight: FontWeight.w700)),
         ),
       );
 }
