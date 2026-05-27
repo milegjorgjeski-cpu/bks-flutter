@@ -96,7 +96,7 @@ class _LiveScreenState extends State<LiveScreen> {
                           color: _transpose == 0 ? BksColors.textMuted : BksColors.gold)),
                 ]),
                 const SizedBox(height: 8),
-                Row(children: [-4,-3,-2,-1,0,1,2,3,4].map((s) => Expanded(child: Padding(
+                Row(children: [-4,-3,-2,-1,0,1,2,3,4].map<Widget>((s) => Expanded(child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2),
                   child: GestureDetector(onTap: () => setState(() => _transpose = s.toDouble()),
                     child: Container(height: 38, decoration: BoxDecoration(
